@@ -28,6 +28,7 @@ SOURCES_LIST 		= main.c debug.c enviro.c keymap.c sort_list.c signal.c \
 						parsing/parser.c\
 						parsing/pipe.c\
 						parsing/redir.c\
+						parsing/redir2.c\
 						parsing/token.c\
 						parsing/expansion.c\
 						parsing/quotes.c\

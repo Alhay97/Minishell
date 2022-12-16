@@ -6,7 +6,7 @@
 /*   By: aalhamel <aalhamel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/11 13:14:19 by aalhamel          #+#    #+#             */
-/*   Updated: 2022/12/15 17:18:03 by aalhamel         ###   ########.fr       */
+/*   Updated: 2022/12/16 17:24:31 by aalhamel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,19 +62,23 @@ void	update_exitstatus(void)
 int	main(int ac, char **av, char **env)
 {
 	char	*buf;
-	// t_cmd	*cmd;
-	t_env	*enviro;
 
 	(void)ac;
 	(void)av;
 	define_input_signals();
 	init_fd();
-	enviro = init_env(env);
+	g_appinfo.exit_status = 0;
+	g_appinfo.env = init_env(env);
 	while (getcmd("minishell> ", &buf) >= 0)
 	{
-		g_appinfo.cmd = parser(buf, enviro);
+		g_appinfo.pipe_out = -1;
+		g_appinfo.cmd = parser(buf, g_appinfo.env);
 		runcmd(g_appinfo.cmd);
+		update_exitstatus();
 		free(buf);
+		clear_cmd(g_appinfo.cmd);
+		g_appinfo.cmd = NULL;
 	}
-	return (0);
+	exit_app(g_appinfo.exit_status);
+	return (g_appinfo.exit_status);
 }

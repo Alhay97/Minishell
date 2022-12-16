@@ -6,7 +6,7 @@
 /*   By: aalhamel <aalhamel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/30 20:15:55 by aalhamel          #+#    #+#             */
-/*   Updated: 2022/12/15 18:06:22 by aalhamel         ###   ########.fr       */
+/*   Updated: 2022/12/16 17:43:01 by aalhamel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,9 @@ static void	child_heredoc(t_cmd *subcmd, char *delim, t_env *env, int pipe[2])
 
 t_cmd	*heredoccmd(t_cmd *subcmd, char *file, char *delim, t_env *env)
 {
-	int			p_id;
-	int			stat;
-	int			fd_pipe[2];
+	int	p_id;
+	int	stat;
+	int	fd_pipe[2];
 
 	if (pipe(fd_pipe) < 0)
 		print_error("pipe");
@@ -68,12 +68,7 @@ t_cmd	*heredoccmd(t_cmd *subcmd, char *file, char *delim, t_env *env)
 	free(delim);
 	close(fd_pipe[1]);
 	waitpid(p_id, &stat, 0);
-	if (WEXITSTATUS(stat))
-	{
-		g_appinfo.exit_status = WEXITSTATUS(stat);
-		close(fd_pipe[0]);
-		g_appinfo.pipe_out = -1;
-	}
+	checkheredoc_status(stat, fd_pipe[0]);
 	return (new_redircmd(subcmd, O_RDONLY, fd_pipe[0], file));
 }
 

@@ -6,7 +6,7 @@
 /*   By: aalhamel <aalhamel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 17:01:15 by aalhamel          #+#    #+#             */
-/*   Updated: 2022/12/15 17:54:10 by aalhamel         ###   ########.fr       */
+/*   Updated: 2022/12/16 17:44:10 by aalhamel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	readpureword_size(char *cursor)
 
 	len = 0;
 	while (*cursor && !ft_strchr(SPACES, *cursor)
-			&& !ft_strchr(SYMBOLS, *cursor))
+		&& !ft_strchr(SYMBOLS, *cursor))
 	{
 		len++;
 		cursor++;
@@ -42,46 +42,69 @@ int	readpureword_size(char *cursor)
 	return (len);
 }
 
-int	readword_size(char *cursor, char *quote, t_env *env)
+int	readword_size(char *cursor, char *q, t_env *env)
 {
 	int	len;
-	int	inquote;
+	int	iq;
 	int	status;
 
 	len = 0;
-	inquote = 0;
+	iq = 0;
 	status = 0;
 	while (*cursor)
 	{
-		status = checkquote(&cursor, quote, &inquote);
+		status = checkquote(&cursor, q, &iq);
 		if (status == 1)
 			continue ;
 		if (status == -1)
-			break;
-		if ((inquote && *quote != '\'' && *cursor == '$')
-			|| (!inquote && *cursor == '$'))
+			break ;
+		if ((iq && *q != '\'' && *cursor == '$') || (!iq && *cursor == '$'))
 		{
-			len += expandsize(&cursor, inquote, env);
+			len += expandsize(&cursor, iq, env);
 			continue ;
 		}
 		len++;
 		cursor++;
 	}
-	if (inquote)
+	if (iq)
 		return (-1);
 	return (len);
+}
+
+void	writeword(char **cursor, char **argv, char *q, t_env *env)
+{
+	char	*str;
+	int		iq;
+	int		status;
+
+	iq = 0;
+	status = 0;
+	str = *argv;
+	while (**cursor)
+	{
+		status = checkquote(cursor, q, &iq);
+		if (status == 1)
+			continue ;
+		if (status == -1)
+			break ;
+		if ((iq && *q != '\'' && **cursor == '$') || (!iq && **cursor == '$'))
+		{
+			if (!expandline(cursor, &str, env) || !iq)
+				continue ;
+			(*cursor)--;
+		}
+		*str = **cursor;
+		str++;
+		(*cursor)++;
+	}
+	*str = '\0';
 }
 
 int	write_argv(char **cursor, char **argv, t_env *env)
 {
 	int		len;
-	char	*str;
-	int		inquote;
-	int		status;
-	char 	quote;
+	char	quote;
 
-	inquote = 0;
-	status = 0;
 	quote = '\0';
 	len = readword_size(*cursor, &quote, env);
 	if (len < 0)
@@ -92,24 +115,6 @@ int	write_argv(char **cursor, char **argv, t_env *env)
 	*argv = malloc(sizeof(char) * (len + 1));
 	if (*argv == NULL)
 		return (0);
-	str = *argv;
-	while (**cursor)
-	{
-		status = checkquote(cursor, &quote, &inquote);
-		if (status == 1)
-			continue ;
-		if (status == -1)
-			break;
-		if ((inquote && quote != '\'' && **cursor == '$') || (!inquote && **cursor == '$'))
-		{
-			if (!expandline(cursor, &str, env) || !inquote)
-				continue ;
-			(*cursor)--;
-		}
-		*str = **cursor;
-		str++;
-		(*cursor)++;
-	}
-	*str = '\0';
+	writeword(cursor, argv, &quote, env);
 	return (0);
 }

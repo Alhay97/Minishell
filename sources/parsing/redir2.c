@@ -1,31 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   signal_utils.c                                     :+:      :+:    :+:   */
+/*   redir2.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aalhamel <aalhamel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/12/15 18:28:35 by aalhamel          #+#    #+#             */
-/*   Updated: 2022/12/15 18:28:36 by aalhamel         ###   ########.fr       */
+/*   Created: 2022/11/30 20:15:55 by aalhamel          #+#    #+#             */
+/*   Updated: 2022/12/16 17:43:05 by aalhamel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "parser.h"
 
-void	sig_handler_heredoc(int sig_num)
+void	checkheredoc_status(int stat, int fd)
 {
-	if (sig_num == SIGINT)
+	if (WEXITSTATUS(stat))
 	{
-		rl_on_new_line();
-		rl_redisplay();
-		ft_putstr_fd("  \b\b", 2);
-		write(2, "\n", 1);
-		rl_replace_line("", 0);
-		rl_on_new_line();
-		rl_redisplay();
-		close(g_appinfo.pipe_in);
-		close(g_appinfo.pipe_out);
-		free(g_appinfo.delim);
-		exit_app(1);
+		g_appinfo.exit_status = WEXITSTATUS(stat);
+		close(fd);
+		g_appinfo.pipe_out = -1;
 	}
 }

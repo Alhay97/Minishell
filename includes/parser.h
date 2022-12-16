@@ -6,7 +6,7 @@
 /*   By: aalhamel <aalhamel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/30 20:15:49 by aalhamel          #+#    #+#             */
-/*   Updated: 2022/12/15 18:03:50 by aalhamel         ###   ########.fr       */
+/*   Updated: 2022/12/16 17:43:13 by aalhamel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,5 +56,7 @@ t_cmd	*move_cursor(t_cmd *cmd, char **cursor, t_env *env);
 char	*expansion(char *ps, t_env *env);
 
 int		readpureword_size(char *cursor);
+
+void	checkheredoc_status(int stat, int fd);
 
 #endif
